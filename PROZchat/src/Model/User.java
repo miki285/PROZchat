@@ -1,6 +1,6 @@
 package Model;
 
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -10,8 +10,7 @@ import java.util.LinkedList;
  */
 public class User {
  private int uniqueID;
- private Date logIn;
- private Date lastPing;
+ private String logIn;
  private HashMap<Integer, String> contacts;
  private HashMap<Integer, LinkedList<Message>> chatHistory;
 }

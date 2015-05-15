@@ -36,6 +36,7 @@ public class Server {
 	public Server (BlockingQueue<ApplicationEvent> eventQueue, int port){
 		this.port = port;
 		this.eventQueue=eventQueue;
+		simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
 		connectedClients=new HashMap<Integer, Socket>();
 		//Tworzenie serwera
 		connect();

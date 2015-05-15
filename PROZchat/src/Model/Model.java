@@ -10,20 +10,30 @@ import Helpfull.Pair;
 
 public class Model {
 	HashMap<Integer, User> usersMap;
-	HashSet<User> activeUser;
+	//HashSet<User> activeUser;
 	//Wyœwietlanie czasu
 	private SimpleDateFormat simpleDateFormat;
 	
 	public Model(){
 		simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-		usersMap = new HashMap<Integer, User>();
-		activeUser= new HashSet<User>();
+		//activeUser= new HashSet<User>();
+		usersMap= new HashMap<Integer, User>();
 	}
 	
-	public void addActiveUser(User user){
-		activeUser.add(user);
+	public void addUser(int id){
+		usersMap.put(id, new User(id));
 	}
 	
+	/*public void addActiveUser(int id){
+		activeUser.add(usersMap.get(id));
+	}
+	public HashSet<User> getActiveUser(){
+		return activeUser;
+	}
+	public HashSet<User> getActiveUser(){
+		return activeUser;
+	}
+	*/
 	public void addUserMessage(int idSender, int idTaker, String msg){
 		String time = simpleDateFormat.format(new Date());
 		User sender = usersMap.get(idSender);
@@ -32,9 +42,7 @@ public class Model {
 		taker.addMessage(sender, time, msg);
 	}
 	
-	public HashSet<User> getActiveUser(){
-		return activeUser;
-	}
+
 	
 	public HashSet<Pair> getUserContacts(int id){
 		return usersMap.get(id).getContacts();
@@ -43,4 +51,9 @@ public class Model {
 	public HashSet<Message> createUserConversation (int idSender, int idTaker){
 		return usersMap.get(idSender).getMessageHistory(idTaker);
 	}
+	
+	public void deleteHistory(int idSender, int idTaker){
+		usersMap.get(idSender).removeHistory(idTaker);
+	}
+	
 }

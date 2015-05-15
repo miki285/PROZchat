@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+
+
+import Helpfull.Pair;
 
 public class Model {
 	HashMap<Integer, User> usersMap;
@@ -32,6 +34,10 @@ public class Model {
 	
 	public HashSet<User> getActiveUser(){
 		return activeUser;
+	}
+	
+	public HashSet<Pair> getUserContacts(int id){
+		return usersMap.get(id).getContacts();
 	}
 	
 	public HashSet<Message> createUserConversation (int idSender, int idTaker){

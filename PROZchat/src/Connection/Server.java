@@ -14,7 +14,7 @@ import java.util.concurrent.BlockingQueue;
 import SendDummy.SendDummy;
 import AplicationEvent.ApplicationEvent;
 /*
- * Klasa serwera odbieraj¹cego i wysy³aj¹cego pakeity klientów, pomocnicza klasa ClientThread.
+ * Klasa serwera odbieraj¹cego i wysy³aj¹cego pakiety klientów, pomocnicza klasa ClientThread.
  * @autor: Krzyszczak Miko³aj
  */
 public class Server {
@@ -27,6 +27,7 @@ public class Server {
 	private SimpleDateFormat simpleDateFormat;
 	// referencja na kolejkê eventów
 	private BlockingQueue<ApplicationEvent> eventQueue;
+	//socket dla Servera
 	private ServerSocket serverSocket;
 	
 	public Server (BlockingQueue<ApplicationEvent> eventQueue, int port){
@@ -96,21 +97,10 @@ public class Server {
 	
 	/*
 	 * Metoda wysy³aj¹ca makietê do danego gracza
-	 * @param id klienta
-	 * @param makieta do wys³ania
 	 */
 	public void sendToClient(int id, SendDummy sendDummy ) {
 		listenedClients.get(id).sendMessage(sendDummy);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	//metoda do wyœwietlania wiadomosci z serwera razem z dat¹
 	private void display(String msg){

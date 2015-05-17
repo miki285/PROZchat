@@ -1,18 +1,17 @@
 package Connection;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
-import javax.sound.midi.SysexMessage;
 
+
+
+import SendDummy.SendDummy;
 import AplicationEvent.ApplicationEvent;
 /*
  * Klasa serwera odbieraj¹cego i wysy³aj¹cego pakeity klientów, pomocnicza klasa ClientThread.
@@ -21,12 +20,9 @@ import AplicationEvent.ApplicationEvent;
 public class Server {
 	// Mapa klientów z socketami na podstawie ich id
 	private HashMap<Integer, Socket> connectedClients;
+	private HashMap<Integer, ClientThread> listenedClients;
 	//numer portu
 	private int port;
-	//unikalneID
-	private int uniqueID;
-	//podtrzymywanie dzia³ania
-	private boolean keepGoing;
 	//Wyœwietlanie czasu
 	private SimpleDateFormat simpleDateFormat;
 	// referencja na kolejkê eventów
@@ -36,49 +32,33 @@ public class Server {
 	public Server (BlockingQueue<ApplicationEvent> eventQueue, int port){
 		this.port = port;
 		this.eventQueue=eventQueue;
-		simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-		connectedClients=new HashMap<Integer, Socket>();
+		this.simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+		this.connectedClients=new HashMap<Integer, Socket>();
+		this.listenedClients= new HashMap<Integer, ClientThread>();
 		//Tworzenie serwera
-		connect();
+		connectCreate();
 		//W³aczenie nas³uchiwania
-		run();
+		ConnectionListener connectionListener= new ConnectionListener(this.serverSocket, this.eventQueue,this.connectedClients,this.listenedClients);
+		connectionListener.start();
 	}
 	
 	//Tworzy serwer na danym sockecie
-	private void connect(){
+	private void connectCreate(){
 		try{
-			this.serverSocket=new ServerSocket(port);
-			keepGoing=true;			
+			this.serverSocket=new ServerSocket(port);			
 		}
 		catch(IOException e){
 			System.err.println("Nie mozna utworzyæ serwera" +e);
 			System.exit(1);
 		}
-		
+		display("Serwer czeka na klientów na porcie: " + port +" .");
 		
 	}
-	//Nas³uchiwanie
-	private void run(){
-		while(keepGoing){
-			try{
-				Socket clientSocket= serverSocket.accept();
-				display("Serwer czeka na klientów na porcie: " + port +" .");
-				if(!keepGoing)
-					closeConnect();
-				uniqueID++;
-				ClientThread clientThread=new ClientThread( clientSocket, connectedClients, eventQueue, uniqueID);
-				clientThread.start();	
-			}
-			catch(IOException e){
-				System.err.println(e);
-			}
-		}
-	}
+
 	//Koñczenie pracy serwera
-	private void closeConnect(){
+	public void closeConnect(){
 		try{
 			this.serverSocket.close();
-			this.keepGoing=false;
 		}
 		catch(IOException e)
 		{
@@ -87,14 +67,49 @@ public class Server {
 		}
 	}
 	//Usuwanie klienta po jego id
-	private void remove(int id){
+	public void removeClient(int id){
 		connectedClients.remove(id);
 		//clientThread.remove(id); to do!
 	}
 	
 	//zwracaj¹ca mape klientów
 	
-	public void getClient(){} //rozkminiæ
+	public HashMap<Integer, Socket> getClient(){
+		return connectedClients;
+	} 
+	
+	public ServerSocket getSocket() {
+		return this.serverSocket;
+	}
+	
+	public boolean addClient(int id, Socket socket){
+		if(this.connectedClients.containsValue(id)){
+			return false;
+		}
+		else{
+			this.connectedClients.put(id, socket);
+			return true;
+		}
+		
+	}
+	
+	
+	/*
+	 * Metoda wysy³aj¹ca makietê do danego gracza
+	 * @param id klienta
+	 * @param makieta do wys³ania
+	 */
+	public void sendToClient(int id, SendDummy sendDummy ) {
+		listenedClients.get(id).sendMessage(sendDummy);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	//metoda do wyœwietlania wiadomosci z serwera razem z dat¹

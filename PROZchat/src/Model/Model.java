@@ -20,9 +20,7 @@ public class Model {
 		usersMap= new HashMap<Integer, User>();
 	}
 	
-	public void addUser(int id){
-		usersMap.put(id, new User(id));
-	}
+
 	
 	/*public void addActiveUser(int id){
 		activeUser.add(usersMap.get(id));
@@ -42,13 +40,19 @@ public class Model {
 		taker.addMessage(sender, time, msg);
 	}
 	
-
+	public void addUser(int id){
+		usersMap.put(id, new User(id));
+	}
 	
 	public HashSet<Pair> getUserContacts(int id){
 		return usersMap.get(id).getContacts();
 	}
 	
-	public HashSet<Message> createUserConversation (int idSender, int idTaker){
+	public void addUserContact(int idSender, int idToAdd, String name){
+		usersMap.get(idSender).addContact(idToAdd, name);
+	}
+	
+	public HashSet<Message> getMessageHistory (int idSender, int idTaker){
 		return usersMap.get(idSender).getMessageHistory(idTaker);
 	}
 	

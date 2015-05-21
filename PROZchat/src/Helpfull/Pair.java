@@ -1,16 +1,18 @@
 package Helpfull;
 
+import Model.User;
+
 public class Pair {
-	private int id;
+	private User user;
 	private String name;
 	
-	public Pair(int id, String name){
-		this.id=id;
+	public Pair(User user, String name){
+		this.user=user;
 		this.name=name;
 		}
 	
-	public int first(){
-		return this.id;
+	public User first(){
+		return this.user;
 	}
 	
 	public String second(){

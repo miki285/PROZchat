@@ -23,8 +23,9 @@ public class ConnectionListener extends Thread {
 	private boolean keepGoing;
 	// referencja na kolejkê eventów
 	private BlockingQueue<ApplicationEvent> eventQueue;
-	// Mapa klientów z socketami na podstawie ich id
+	// Mapa w¹tków klientów na podstawie ich id
 	private HashMap<Integer, ClientThread> listenedClients;
+	// mapa socketó klientów na podstawie ich id
 	private HashMap<Integer, Socket> connectedClients;
 	//unikalneID
 	private int uniqueID;

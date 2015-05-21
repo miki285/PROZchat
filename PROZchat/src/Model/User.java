@@ -1,49 +1,76 @@
 package Model;
 
 
+
 import java.util.HashMap;
 import java.util.HashSet;
 
-import Helpfull.Pair;
+
 
 /*
  * Klasa u¿ytkownika chatu, zawiera unikalny numer u¿ytkownika,zbiór jego kontaktów, datê logowania i ostatniego pingu,
  * oraz historiê rozmowy danego u¿ytkownika 
  */
 public class User {
- private int uniqueID;
- private HashSet<Pair> contacts;
- private HashMap<Integer, HashSet<Message>> chatHistory;
- 
- public User(int uniqueID){
+ private UserId uniqueID;
+ private String name;
+ private HashSet<User> contacts;
+ private HashMap<User, HashSet<Message>> chatHistory;
+ /*
+  * Konstruktor klasy User
+  * @param int uniqueID, String name
+  */
+ public User(UserId uniqueID, String name){
 	 this.uniqueID=uniqueID;
-	 contacts= new HashSet<Pair>();
-	 chatHistory= new HashMap<Integer, HashSet<Message>>();
+	 this.name=name;
+	 contacts= new HashSet<User>();
+	 chatHistory= new HashMap<User, HashSet<Message>>();
  }
- 
+ /*
+  * Metoda zwracaj¹ca id danego klienta
+  */
  public int getUserId(){
-	 return this.uniqueID;
+	 return this.uniqueID.getId();
  }
- 
- public void addContact(int id, String name){
-	 contacts.add(new Pair(id, name));
+ /*
+  * Metoda zwracaj¹ca nazwê danego klienta
+  */
+ public String getUserName(){
+	 return this.name;
  }
- 
- public HashSet<Message> getMessageHistory (int id){
-	return chatHistory.get(id);		 
+ /*
+  * Metoda dodaj¹ca u¿ytkwonika do znajomych klienta
+  * @param User user
+  */
+ public void addContact(User user){
+	 contacts.add(user);
+	 chatHistory.put(user, new HashSet<Message>());
  }
- 
- public HashSet<Pair> getContacts(){
-	 return this.contacts;
+ /*
+  * Metoda zwracaj¹ca HashSet wiadomoœci z danym u¿ytownikiem
+  * @param User user
+  */
+ public HashSet<Message> getMessageHistory (User user){
+		 return chatHistory.get(user);
  }
- 
- public void addMessage(User user, String whenWritten, String msg){
-	 Message message = new Message(user, whenWritten, msg);
-	 chatHistory.get(user.uniqueID).add(message);	
+ /*
+  * Metoda zwracaj¹ca listê znajomych danego u¿ytkownika
+  */
+public HashSet<User> getContacts()
+{
+	return contacts;
+}
+ /*
+  * Metoda dodaj¹ca wiadomoœæ do historii danego u¿ytkownika
+  * @param User user,Message message
+  */
+ public void addMessage(User user,Message message){
+	 chatHistory.get(user).add(message);	
  }
- public void removeHistory(int id){
-	 chatHistory.get(id).clear();
+ public void removeHistory(User user){
+	 chatHistory.get(user).clear();
  }
+
 }
 
 

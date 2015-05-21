@@ -7,7 +7,10 @@ import java.util.concurrent.BlockingQueue;
 import AplicationEvent.*;
 import Connection.Server;
 import Model.Model;
-
+/*
+ * Klasa kontrolera
+ * @autor Krzyszczak Miko³¹j
+ */
 public class Controller {
 	//Kolejka blokuj¹ca eventy
 	private BlockingQueue<ApplicationEvent> eventQueue;
@@ -27,12 +30,10 @@ public class Controller {
 		this.server=server;
 		
 		strategyMap= new HashMap<Class<? extends ApplicationEvent>, Controller.ApplicationEventStrategy>();
-		strategyMap.put(ButtonActiveUsersEvent.class, new ButtonActiveUsersClickedEventStrategy());
 		strategyMap.put(ButtonClearHistoryEvent.class, new ButtonClearHistoryClickedEventStrategy());
 		strategyMap.put(ButtonFriendUserEvent.class, new ButtonFriendUserClickedEventStrategy());
 		strategyMap.put(ButtonLoginClickedEvent.class, new ButtonLoginClickedEventStrategy());
 		strategyMap.put(ButtonSendMessageEvent.class, new ButtonSendMessageEventStrategy());
-		strategyMap.put(ButtonWriteToUserEvent.class, new ButtonWriteToUserClickedEventStrategy());
 	}
 	
 	/*

@@ -41,7 +41,10 @@ public class ClientThread extends Thread {
 			return;
 		}
 	}
-	
+	/*
+	 * Metoda czekaj¹ca na Eventy od u¿ytkownika
+	 * @see java.lang.Thread#run()
+	 */
 	public void run(){
 		ApplicationEvent applicationEvent;
 		String time=simpleDateFormat.format(new Date()) + "Czekam na akcjê od uzytkownika";

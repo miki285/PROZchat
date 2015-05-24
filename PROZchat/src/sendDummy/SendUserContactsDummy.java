@@ -1,9 +1,10 @@
 package sendDummy;
 
+import helpfull.UsersDataForClient;
+
 import java.io.Serializable;
 import java.util.HashSet;
 
-import model.User;
 
 public class SendUserContactsDummy extends SendDummy implements Serializable {
 	
@@ -12,11 +13,11 @@ public class SendUserContactsDummy extends SendDummy implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	/*HashSet zawieraj¹cy u¿ytkowników */
-	private HashSet<User> usersFriends;
-	private HashSet<User> allUsers;
+	private HashSet<UsersDataForClient> usersFriends;
+	private HashSet<UsersDataForClient> allUsers;
 	
 	/*Konstruktor tworz¹cy makietê*/
-	public SendUserContactsDummy(HashSet<User> usersFriends,HashSet<User> allUsers){
+	public SendUserContactsDummy(HashSet<UsersDataForClient> usersFriends,HashSet<UsersDataForClient> allUsers){
 		this.usersFriends=usersFriends;
 		this.allUsers=allUsers;
 	}
@@ -24,11 +25,11 @@ public class SendUserContactsDummy extends SendDummy implements Serializable {
 	
 	/*metoda zwracaj¹ca HashSet kontaktów u¿ytkownika*/
 	
-	public HashSet<User> getUsersContacts(){
+	public HashSet<UsersDataForClient> getUsersContacts(){
 		return this.usersFriends;
 	}
 	
-	public HashSet<User> getAllUsers(){
+	public HashSet<UsersDataForClient> getAllUsers(){
 		return this.allUsers;
 	}
 	

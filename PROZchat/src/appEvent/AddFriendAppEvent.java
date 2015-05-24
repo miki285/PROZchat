@@ -1,8 +1,8 @@
 package appEvent;
 
-import java.io.Serializable;
+import helpfull.UserId;
 
-import Helpfull.UserId;
+import java.io.Serializable;
 
 public class AddFriendAppEvent extends ApplicationEvent implements Serializable {
 

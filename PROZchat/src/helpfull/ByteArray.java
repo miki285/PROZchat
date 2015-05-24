@@ -1,4 +1,4 @@
-package Helpfull;
+package helpfull;
 
 
 /*klasa przechowuj¹ca zaszyfrowany ci¹g podanego przez u¿ytkownika has³a*/

@@ -1,5 +1,7 @@
 package connection;
 
+import helpfull.UserId;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -8,7 +10,6 @@ import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
 import appEvent.*;
-import Helpfull.UserId;
 
 /*
  * Klasa s³u¿¹ca do nas³uchiwania przychodz¹cych po³¹czeñ od klientów

@@ -1,14 +1,16 @@
 package controler;
 
+import helpfull.UserId;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
+
 
 
 
 import connection.MainServerClass;
 import appEvent.ApplicationEvent;
 import model.Model;
-import Helpfull.UserId;
 
 public class SerwerChat {
 	public static void main(String[] args) {

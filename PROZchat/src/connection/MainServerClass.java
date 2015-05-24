@@ -1,5 +1,7 @@
 package connection;
 
+import helpfull.UserId;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -9,7 +11,6 @@ import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
 import appEvent.ApplicationEvent;
-import Helpfull.UserId;
 
 public class MainServerClass {
 	/* Numer portu na którym nas³uchuje serwer */

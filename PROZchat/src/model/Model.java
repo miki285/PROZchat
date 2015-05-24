@@ -1,6 +1,10 @@
 package model;
 
 
+import helpfull.ByteArray;
+import helpfull.UsersDataForClient;
+import helpfull.UserId;
+
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -23,8 +27,6 @@ import exceptions.UserNotFoundException;
 import modelMessages.DataMessage;
 import modelMessages.InfoMessage;
 import modelMessages.ModelMessages;
-import Helpfull.ByteArray;
-import Helpfull.UserId;
 
 
 
@@ -38,7 +40,12 @@ public class Model {
 	private int uniqueId;
 	
 	
-
+	
+	
+/***********************************************************************************************************************/	
+	               /*    KONSTRUKTOR I METODY POTRZEBNE DO UTWORZENIA OBIEKTU KLASY MODEL*/
+	
+/***********************************************************************************************************************/
 	/*
 	 * Konstruktor modelu
 	 */
@@ -56,7 +63,8 @@ public class Model {
 	
 /*Metoda generuj¹ca parê kluczy w kodowaniu RSA*/
 	
-	private void setPairKeys() throws NoSuchAlgorithmException{
+	private void setPairKeys() throws NoSuchAlgorithmException
+	{
 		KeyPairGenerator kGen = null;
 		kGen = KeyPairGenerator.getInstance("RSA");
 		kGen.initialize(1024);
@@ -65,8 +73,15 @@ public class Model {
 		this.pubKey=keyPair.getPublic();
 	}
 	
-	/*Metoda zwracaj¹ca mo¿liw¹ wartoœæ ID klienta */
 	
+	
+	
+/***********************************************************************************************************************/
+	/*METODY DO OBS£UGI LOGUJ¥CYCH SIÊ KLIENTÓW*/
+	
+/***********************************************************************************************************************/	
+	
+	/*Metoda zwracaj¹ca mo¿liw¹ wartoœæ ID klienta */	
 	public ModelMessages getFreeId(){
 		return new DataMessage(uniqueId++);
 	}
@@ -78,10 +93,7 @@ public class Model {
 	}
 	
 	
-	/*
-	 * Metoda sprawdzaj¹ca poprawnoœæ has³a zalogowanego u¿ytkownika
-	 */
-	
+	/* Metoda sprawdzaj¹ca poprawnoœæ has³a zalogowanego u¿ytkownika*/	
 	public ModelMessages checkUserPassword(UserId userId, ByteArray password){
 		User user;
 		try{
@@ -110,10 +122,26 @@ public class Model {
 		
 		return new DataMessage(this.usersSet);
 	}
+	
+	
 	/*
-	 * Metoda dodaj¹ca wiadomoœæ do ka¿dego z u¿ytkowników danej konwersacji
-	 * @param int idSender, int idTaker, String msg
+	 * Metoda dodaj¹ca u¿ytkowników do HashMapy u¿ytkowników na serwerze
+	 * @param int id, String name
 	 */
+	public void addUser(UserId id, String name, ByteArray password){
+		usersSet.add(new User(id, name, password));
+	}
+
+	
+	
+	
+/***********************************************************************************************************************/
+	
+       /*METODY DO OBS£UGI ODBIERANIA I WYSY£ANIA WIADOMOŒCI*/	
+	
+/***********************************************************************************************************************/
+	/* Metoda dodaj¹ca wiadomoœæ do ka¿dego z u¿ytkowników danej konwersacji
+	 * @param int idSender, int idTaker, String msg*/
 	public ModelMessages addUserMessage(UserId idSender, UserId idTaker, String msg){
 		User sender;
 		User taker;
@@ -132,68 +160,21 @@ public class Model {
 		return this.sendMessageHistory(sender, taker);
 	}
 	
-	
 	/*
-	 * Metoda dodaj¹ca u¿ytkowników do HashMapy u¿ytkowników na serwerze
-	 * @param int id, String name
+	 * Prywatna klasa do wysy³ania wiadomoœci
 	 */
-	public void addUser(UserId id, String name, ByteArray password){
-		usersSet.add(new User(id, name, password));
+	private ModelMessages sendMessageHistory(User sender, User taker){
+		String msg;
+		try
+		{
+			msg=this.getMessageHistory(sender, taker);
+		}catch (MessagesNotFoundException e){
+			return new InfoMessage("Brak wiadomoœci do wyœwietlenia");
+		}
+		return new DataMessage(msg);
 	}
 	
-	
-	/*
-	 * Metoda zwracaj¹ca kontakty danego u¿ytkownika
-	 * @param int id
-	 */
-	public ModelMessages getUsersContacts (UserId id){
-		User user;
-		try{
-			user=getUser(id);
-		}
-		catch( UserNotFoundException e){
-			return new InfoMessage("Nie ma uzytkownikow o takich numerach ID");
-		}
-		return new DataMessage(this.getUserContacts(user));
-	}
-	
-	
-	
-	/*
-	 * Metoda dodaj¹ca u¿ytkownika do znajomych 
-	 * @param int idSender, int idTaker
-	 */
-	public ModelMessages addUserContact(UserId idSender, UserId idTaker){
-		User sender; 
-		User taker;
-		try{
-			sender=getUser(idSender);
-			taker=getUser(idTaker);
-			sender.addContact(taker);
-		}
-		catch( UserNotFoundException e){
-			return new InfoMessage("Nie ma uzytkownika o takim numerze ID");
-		}
-		return this.getUsersContacts(idSender);
-	}
-	
-	
-	/*
-	 * Metoda zwracaj¹ca ca³¹ rozmowê miêdzy dwoma u¿ytkownikami po ich id
-	 * @param int idSender, int idTaker
-	 * póki co jest bez kasowania
-	 */
-	public ModelMessages getMessageHisory( UserId idSender, UserId idTaker){
-		User sender;
-		User taker;
-		try {
-			sender=getUser(idSender);
-			taker=getUser(idTaker);
-		} catch (UserNotFoundException e) {
-			return new InfoMessage("Nie ma uzytkownikow o takich numerach id");
-		}
-		return sendMessageHistory(sender, taker);
-	}
+
 	
 	/*
 	 * Prywatna metoda tworz¹ca rozmowê miêdzy dwoma u¿ytkownikami po ich ID
@@ -215,25 +196,90 @@ public class Model {
 		}		
 		throw new MessagesNotFoundException();
 	}
+
+	
+	
+	
+/***********************************************************************************************************************/	
+
+	/*OBS£UGA PRÓŒB O KONTAKTY*/
+	
+/***********************************************************************************************************************/	
 	
 	
 	/*
-	 * Prywatna klasa do wysy³ania wiadomoœci
+	 * Metoda dodaj¹ca osobê do znajomych danego klienta 
+	 * @param int idSender, int idTaker
 	 */
-	private ModelMessages sendMessageHistory(User sender, User taker){
-		String msg;
-		try
-		{
-			msg=this.getMessageHistory(sender, taker);
-		}catch (MessagesNotFoundException e){
-			return new InfoMessage("Brak wiadomoœci do wyœwietlenia");
+	public ModelMessages addUserContact(UserId idSender, UserId idTaker){
+		User sender; 
+		User taker;
+		try{
+			sender=getUser(idSender);
+			taker=getUser(idTaker);
+			sender.addContact(taker);
 		}
-		return new DataMessage(msg);
+		catch( UserNotFoundException e){
+			return new InfoMessage("Nie ma uzytkownika o takim numerze ID");
+		}
+		return this.getUsersContacts(idSender);
+	}
+	
+	/*
+	 * Metoda zwracaj¹ca kontakty danego u¿ytkownika
+	 * @param int id
+	 */
+	public ModelMessages getUsersContacts (UserId id){
+		User user;
+		try{
+			user=getUser(id);
+		}
+		catch( UserNotFoundException e){
+			return new InfoMessage("Nie ma uzytkownikow o takich numerach ID");
+		}
+		return new DataMessage(this.getContacts(user));
+	}
+	
+	/*
+	 * Metoda wysy³aj¹ca wszystkich u¿ytkowników danego chatu
+	 */
+	public ModelMessages getAllUsers(){
+		return new DataMessage(this.getAllUsersSet());
 	}
 	
 	
 	/*
-	 * Prywatna klasa pomocnicza zwracaj¹ca usera z UserSet'a
+	 * Metoda prywatna pomagaj¹ca przy zwracaniu informacji o kontaktach u¿ytkownika
+	 */
+	private HashSet<UsersDataForClient> getContacts(User user){
+		HashSet<UsersDataForClient> contactsSet= new HashSet<UsersDataForClient>();
+		for(User contact: user.getContacts())
+		{
+			contactsSet.add(new UsersDataForClient(contact.getUserId(),contact.getUserName()));
+		}
+		return contactsSet;	
+	}
+		
+	private HashSet<UsersDataForClient> getAllUsersSet(){
+		HashSet<UsersDataForClient> allUsersSet= new HashSet<UsersDataForClient>();
+		for(User contact: usersSet)
+		{
+			allUsersSet.add(new UsersDataForClient(contact.getUserId(),contact.getUserName()));
+		}
+		return allUsersSet;
+		
+}
+	
+	
+	
+	
+/***********************************************************************************************************************/	
+	
+	/*METODY PRYWATNE KLASY MODELU POMAGAJ¥CE W OBS£UGE M.IN. SETA*/
+	
+/***********************************************************************************************************************/	
+	/*
+	 * Klasa zwracaj¹ca obiekt klienta okreœlonego po jego ID
 	 */
 	private User getUser(UserId id)throws UserNotFoundException{
 		for (User user: usersSet)
@@ -247,12 +293,6 @@ public class Model {
 	}
 	
 	
-	/*
-	 * Metoda prywatna pomagaj¹ca przy zwracaniu informacji o kontaktach u¿ytkownika
-	 */
-	private HashSet<User> getUserContacts(User user){
-		return user.getContacts();		
-}
 	/*
 	public void deleteHistory(int idSender, int idTaker){
 		usersMap.get(idSender).removeHistory(idTaker);

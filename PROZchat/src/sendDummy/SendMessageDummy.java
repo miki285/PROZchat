@@ -1,8 +1,8 @@
 package sendDummy;
 
-import java.io.Serializable;
+import helpfull.UserId;
 
-import Helpfull.UserId;
+import java.io.Serializable;
 
 /*
  * Makieta do wysy³ania wiadomoœci

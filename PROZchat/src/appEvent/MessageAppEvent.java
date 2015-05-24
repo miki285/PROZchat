@@ -1,8 +1,8 @@
 package appEvent;
 
-import java.io.Serializable;
+import helpfull.UserId;
 
-import Helpfull.UserId;
+import java.io.Serializable;
 
 public class MessageAppEvent extends ApplicationEvent implements Serializable {
 	/**

@@ -1,5 +1,7 @@
 package connection;
 
+import helpfull.UserId;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,7 +11,6 @@ import java.util.concurrent.BlockingQueue;
 
 import appEvent.*;
 import sendDummy.SendDummy;
-import Helpfull.UserId;
 
 public class ClientThread extends Thread {
 	

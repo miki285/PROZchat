@@ -2,6 +2,9 @@ package model;
 
 
 
+import helpfull.ByteArray;
+import helpfull.UserId;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -13,9 +16,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-
-import Helpfull.ByteArray;
-import Helpfull.UserId;
 
 
 
@@ -64,8 +64,8 @@ public class User {
 	 /*
 	  * Metoda zwracaj¹ca id danego klienta
 	  */
-	 public int getUserId(){
-		 return this.uniqueID.getId();
+	 public UserId getUserId(){
+		 return this.uniqueID;
 	 }
 	 
 	 

@@ -1,4 +1,4 @@
-package Message;
+package modelMessages;
 /*
  * Klasa message która bêdzie tworzona je¿eli wyst¹pi b³¹d z dana
  */

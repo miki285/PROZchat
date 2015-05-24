@@ -1,6 +1,12 @@
-package Model;
+package model;
 
 
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,17 +14,29 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
-import Exceptions.UserNotFoundException;
-import Message.DataMessage;
-import Message.InfoMessage;
-import Message.ModelMessages;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
+import exceptions.MessagesNotFoundException;
+import exceptions.UserNotFoundException;
+import modelMessages.DataMessage;
+import modelMessages.InfoMessage;
+import modelMessages.ModelMessages;
+import Helpfull.ByteArray;
+import Helpfull.UserId;
 
 
 
 public class Model {
 	//Do przechowywania userów
-	HashSet<User> usersSet;
-	SimpleDateFormat sdf;
+	private HashSet<User> usersSet;
+	//format daty
+	private SimpleDateFormat sdf;
+	private PrivateKey privKey;
+	private PublicKey pubKey;
+	private int uniqueId;
+	
 	
 
 	/*
@@ -27,9 +45,71 @@ public class Model {
 	public Model(){
 		usersSet= new HashSet< User>();
 		sdf= new SimpleDateFormat ("HH:mm:ss");
+		uniqueId=1;
+		try {
+			setPairKeys();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+/*Metoda generuj¹ca parê kluczy w kodowaniu RSA*/
+	
+	private void setPairKeys() throws NoSuchAlgorithmException{
+		KeyPairGenerator kGen = null;
+		kGen = KeyPairGenerator.getInstance("RSA");
+		kGen.initialize(1024);
+		KeyPair keyPair=kGen.generateKeyPair();
+		this.privKey=keyPair.getPrivate();
+		this.pubKey=keyPair.getPublic();
+	}
+	
+	/*Metoda zwracaj¹ca mo¿liw¹ wartoœæ ID klienta */
+	
+	public ModelMessages getFreeId(){
+		return new DataMessage(uniqueId++);
 	}
 	
 	
+	/*Metoda zwracaj¹ca klucz publiczny*/
+	public ModelMessages getPublicKey(){
+		return new DataMessage(pubKey);
+	}
+	
+	
+	/*
+	 * Metoda sprawdzaj¹ca poprawnoœæ has³a zalogowanego u¿ytkownika
+	 */
+	
+	public ModelMessages checkUserPassword(UserId userId, ByteArray password){
+		User user;
+		try{
+			user=getUser(userId);
+			user.checkPassword(privKey, password);
+			
+		}
+		catch(UserNotFoundException e){
+			return new InfoMessage("Nie ma u¿ytkownika o takim numerze ID");
+		}
+		catch (NoSuchAlgorithmException e){
+			System.err.println(e);
+		}
+		catch (BadPaddingException e) {
+			System.err.println(e);
+		}
+		catch (IllegalBlockSizeException e) {
+			System.err.println(e);
+		}
+		catch (InvalidKeyException e) {
+			System.err.println(e);
+		}
+		catch (NoSuchPaddingException e) {
+			System.err.println(e);
+		}
+		
+		return new DataMessage(this.usersSet);
+	}
 	/*
 	 * Metoda dodaj¹ca wiadomoœæ do ka¿dego z u¿ytkowników danej konwersacji
 	 * @param int idSender, int idTaker, String msg
@@ -49,7 +129,7 @@ public class Model {
 			return new InfoMessage("Nie ma uzytkownikow o takich numerach ID");
 		}
 		
-		return new DataMessage(this.getMessageHistory(sender, taker));
+		return this.sendMessageHistory(sender, taker);
 	}
 	
 	
@@ -57,8 +137,8 @@ public class Model {
 	 * Metoda dodaj¹ca u¿ytkowników do HashMapy u¿ytkowników na serwerze
 	 * @param int id, String name
 	 */
-	public void addUser(UserId id, String name){
-		usersSet.add(new User(id, name));
+	public void addUser(UserId id, String name, ByteArray password){
+		usersSet.add(new User(id, name, password));
 	}
 	
 	
@@ -106,26 +186,24 @@ public class Model {
 	public ModelMessages getMessageHisory( UserId idSender, UserId idTaker){
 		User sender;
 		User taker;
-	
 		try {
 			sender=getUser(idSender);
 			taker=getUser(idTaker);
 		} catch (UserNotFoundException e) {
 			return new InfoMessage("Nie ma uzytkownikow o takich numerach id");
 		}
-		return new DataMessage(this.getMessageHistory(sender, taker));
+		return sendMessageHistory(sender, taker);
 	}
 	
 	/*
 	 * Prywatna metoda tworz¹ca rozmowê miêdzy dwoma u¿ytkownikami po ich ID
 	 * 	 @param int idSender, int idTaker
 	 */
-	private String getMessageHistory (User sender, User taker){
+	private String getMessageHistory (User sender, User taker)throws MessagesNotFoundException{
 		HashSet<Message> conversation= new HashSet<Message>();
 		String finishConversation= new String ("");
 		
 		conversation.addAll(sender.getMessageHistory(taker));
-		conversation.addAll(taker.getMessageHistory(sender));
 		if(!conversation.isEmpty()){
 			ArrayList<Message> listOfMessages= new ArrayList<Message>();
 			listOfMessages.addAll(conversation);
@@ -135,7 +213,22 @@ public class Model {
 				finishConversation = finishConversation + msg.getMessage();
 			}
 		}		
-		return finishConversation;
+		throw new MessagesNotFoundException();
+	}
+	
+	
+	/*
+	 * Prywatna klasa do wysy³ania wiadomoœci
+	 */
+	private ModelMessages sendMessageHistory(User sender, User taker){
+		String msg;
+		try
+		{
+			msg=this.getMessageHistory(sender, taker);
+		}catch (MessagesNotFoundException e){
+			return new InfoMessage("Brak wiadomoœci do wyœwietlenia");
+		}
+		return new DataMessage(msg);
 	}
 	
 	

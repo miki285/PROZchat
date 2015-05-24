@@ -1,4 +1,4 @@
-package AplicationEvent;
+package appEvent;
 
 import java.io.Serializable;
 
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author Krzyszczak Miko³aj
  *
  */
-public class ApplicationEvent implements Serializable {
+public abstract class ApplicationEvent implements Serializable {
 
 	/**
 	 * 

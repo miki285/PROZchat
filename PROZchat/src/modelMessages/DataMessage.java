@@ -1,4 +1,4 @@
-package Message;
+package modelMessages;
 /*
  * Klasa Message do przesy³ania wiadomoœci miêdzy modelem a kontrolerem
  * 

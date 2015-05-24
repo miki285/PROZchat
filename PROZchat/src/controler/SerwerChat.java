@@ -3,19 +3,21 @@ package controler;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
-import AplicationEvent.ApplicationEvent;
-import Connection.Server;
-import Model.Model;
-import Model.UserId;
+
+
+import connection.MainServerClass;
+import appEvent.ApplicationEvent;
+import model.Model;
+import Helpfull.UserId;
 
 public class SerwerChat {
 	public static void main(String[] args) {
-		//BlockingQueue<ApplicationEvent> eventQueue = new SynchronousQueue<ApplicationEvent>();
-		/*System.out.println("Model Start");
+		BlockingQueue<ApplicationEvent> eventQueue = new SynchronousQueue<ApplicationEvent>();
+		System.out.println("Model Start");
 		Model model= new Model();
 		System.out.println("Serwer start");
-		Server server= new Server(eventQueue, 1200);
-		*/
+		MainServerClass server= new MainServerClass (1200, eventQueue);
+		
 		UserId user;
 		user= new UserId(15);
 		if(user.equals(14)) System.out.println("Cos");

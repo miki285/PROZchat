@@ -1,18 +1,23 @@
-package Model;
+package Helpfull;
+
 
 public class UserId {
+	
+	
 	/*
 	 * Id u¿ytkownika
 	 */
 	private int userID;
 	
+	
 	/*
 	 * Konstruktor userid
 	 */
-	
 	public UserId(final int userID){
 		this.userID= userID;
 	}
+	
+	
 	/*
 	 * Nadpisana metoda equals
 	 * @param Object other
@@ -25,6 +30,8 @@ public class UserId {
 		Integer otherId = (int) other;
 		return otherId.equals(this.userID);		
 	}
+	
+	
 	/*
 	 * zwraca id u¿ytkownika
 	 */

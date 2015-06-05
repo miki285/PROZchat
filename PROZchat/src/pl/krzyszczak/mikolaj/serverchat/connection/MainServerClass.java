@@ -8,8 +8,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
+
 import pl.krzyszczak.mikolaj.serverchat.appEvent.ApplicationEvent;
 import pl.krzyszczak.mikolaj.serverchat.helpfull.UserId;
+import pl.krzyszczak.mikolaj.serverchat.sendDummy.SendDummy;
 
 /**
  * G³ówna klasa serwera
@@ -83,9 +85,18 @@ public class MainServerClass {
 	 * Metoda do wysy³ania wiadomoœci przez serwer
 	 * 
 	 * @param userId
-	 *            @
+	 * @param dummy          
 	 */
-	// TODO !!!!!!!!!!!!!!!!!!!!!!
+	public void sendDummy(UserId userId, SendDummy dummy){
+		
+		try {
+			ObjectOutputStream objectOutputStream=userOutputStreamsMap.get(userId);
+			objectOutputStream.writeObject(dummy);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
 
 	// metoda do wyœwietlania wiadomosci z serwera razem z dat¹
 	private void display(String msg) {

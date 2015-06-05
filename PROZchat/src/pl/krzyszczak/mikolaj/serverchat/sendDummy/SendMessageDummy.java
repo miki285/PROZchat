@@ -4,8 +4,11 @@ import java.io.Serializable;
 
 import pl.krzyszczak.mikolaj.serverchat.helpfull.UserId;
 
-/*
- * Makieta do wysy³ania wiadomoœci
+/**
+ * klasa makiety do wysy³ania rozmowy
+ * 
+ * @author Miko³aj
+ *
  */
 public class SendMessageDummy extends SendDummy implements Serializable {
 
@@ -13,29 +16,25 @@ public class SendMessageDummy extends SendDummy implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	/*Zawiera treœæ wiadomoœci*/
+	/** Zawiera treœæ wiadomoœci */
 	private final String message;
-	/*UserId osoby z któr¹ rozmawia klient*/
+	/** UserId osoby z któr¹ rozmawia klient */
 	private final UserId withWho;
-	
-	
-	/*Konstruktor makiety*/
-	public SendMessageDummy(final String msg, final UserId withWho){
-		this.message=msg;
-		this.withWho=withWho;
+
+	/** Konstruktor makiety */
+	public SendMessageDummy(final String msg, final UserId withWho) {
+		this.message = msg;
+		this.withWho = withWho;
 	}
-	
-	
-	/*Metoda zwracaj¹ca treœæ wiadomoœci */
-	public String getMessage(){
+
+	/** Metoda zwracaj¹ca treœæ wiadomoœci */
+	public String getMessage() {
 		return this.message;
 	}
-	
-	
-	/*Metoda zwracaj¹ca UserId osoby z któr¹ pisze u¿ytkownik*/
-	public UserId getUserId(){
+
+	/** Metoda zwracaj¹ca UserId osoby z któr¹ pisze u¿ytkownik */
+	public UserId getUserId() {
 		return this.withWho;
 	}
-	
 
 }

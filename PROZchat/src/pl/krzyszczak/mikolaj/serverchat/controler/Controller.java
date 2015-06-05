@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import pl.krzyszczak.mikolaj.serverchat.appEvent.*;
 import pl.krzyszczak.mikolaj.serverchat.connection.MainServerClass;
 import pl.krzyszczak.mikolaj.serverchat.model.Model;
-/*
+/**
  * Klasa kontrolera
  * @autor Krzyszczak Miko³¹j
  */

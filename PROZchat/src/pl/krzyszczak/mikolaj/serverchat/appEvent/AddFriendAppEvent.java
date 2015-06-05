@@ -7,7 +7,7 @@ import pl.krzyszczak.mikolaj.serverchat.helpfull.UserId;
 /**
  * Klasa eventu dodania przyjaciela daneog klienta
  * 
- * @author Miko³aj FIXME
+ * @author Miko³aj
  */
 public class AddFriendAppEvent extends ApplicationEvent implements Serializable {
 

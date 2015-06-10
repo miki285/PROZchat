@@ -23,25 +23,34 @@ import pl.krzyszczak.mikolaj.serverchat.modelMessages.ModelMessages;
  *
  */
 
-public class Model {
-	// Do przechowywania userów
+public class Model
+{
+	/** Set przechowyj¹cy wszystkich u¿ytkowników serwera */
 	private HashSet<User> usersSet;
-	// format daty
-	private SimpleDateFormat sdf;
+	/** Zmienna pomagaj¹ca nadawaæ unikalne ID u¿ytkownikom*/
 	private int uniqueId;
+	/** Zmienna do ustawiania formatu wyswietlania daty */
+	private SimpleDateFormat sdf;
+	/**
+	 * Set przechowuj¹cy UserId u¿ytkowników, którzy próbowali siê zalogowaæ ale
+	 * podali z³e has³o
+	 */
+	private HashSet<UserId> blockedUsers;
 
 	/***********************************************************************************************************************/
 	/* KONSTRUKTOR I METODY POTRZEBNE DO UTWORZENIA OBIEKTU KLASY MODEL */
 
 	/***********************************************************************************************************************/
-	
+
 	/**
 	 * Konstruktor modelu
 	 */
-	public Model() {
+	public Model()
+	{
+		uniqueId=1;
 		usersSet = new HashSet<User>();
 		sdf = new SimpleDateFormat("HH:mm:ss");
-		uniqueId = 1;
+		blockedUsers = new HashSet<UserId>();
 
 	}
 
@@ -50,23 +59,45 @@ public class Model {
 
 	/***********************************************************************************************************************/
 
-	/** Metoda zwracaj¹ca mo¿liw¹ wartoœæ ID klienta */
-	public ModelMessages getFreeId() {
-		return new DataMessage(uniqueId++);
+	/**Metoda zwracaj¹ca unikalne ID dla ka¿dego u¿ytkownika */
+	public UserId setUniqueId()
+	{
+		return new UserId(uniqueId++);
 	}
-
+	
 	/** Metoda sprawdzaj¹ca poprawnoœæ has³a zalogowanego u¿ytkownika */
-	public ModelMessages checkUserPassword(UserId userId, UserPassword toCheck) {
+	public ModelMessages checkUserPassword(UserId userId, UserPassword toCheck)
+	{
 		User user = null;
-		try {
+		try
+		{
 			user = getUser(userId);
-		} catch (UserNotFoundException e) {
-			e.printStackTrace();
+		} catch (UserNotFoundException e)
+		{
+			return new InfoMessage("Nie znaleziono u¿ytkownika o takim ID");
 		}
 		if (!user.checkPassword(toCheck))
+		{
+			blockedUsers.add(user.getUserId());
 			return new InfoMessage("Has³o niepoprawne");
+		}
+		if(blockedUsers.contains(userId))
+			blockedUsers.remove(userId);
+		return new DataMessage(this.getContacts(user));
+	}
 
-		return new DataMessage(this.usersSet);
+	/**
+	 * Metoda sprawdzaj¹ca czy dany u¿ytkownik który próbuje sie zalogowaæ,
+	 * poda³ wczeœniej z³e has³o je¿eli tak to umo¿liwi mi to zablokowanie
+	 * wszystkich funkcjonalnoœci zwi¹zanych z danym kontem
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public boolean ifUserIsBlocked(UserId userId)
+	{
+		return blockedUsers.contains(userId);
+	
 	}
 
 	/**
@@ -74,8 +105,9 @@ public class Model {
 	 * 
 	 * @param int id, String name
 	 */
-	public void addUser(UserId id, String name, UserPassword password) {
-		usersSet.add(new User(id, name, password));
+	public void addUser(UserId userId, String name, UserPassword password)
+	{
+		usersSet.add(new User(userId, name, password));
 	}
 
 	/***********************************************************************************************************************/
@@ -83,40 +115,49 @@ public class Model {
 	/* METODY DO OBS£UGI ODBIERANIA I WYSY£ANIA WIADOMOŒCI */
 
 	/***********************************************************************************************************************/
-	
+
 	/**
 	 * Metoda dodaj¹ca wiadomoœæ do ka¿dego z u¿ytkowników danej konwersacji
 	 * 
-	 * @param int idSender, int idTaker, String msg
+	 * @param int idByUser, int idToUser, String msg
 	 */
-	public ModelMessages addUserMessage(UserId idSender, UserId idTaker,
-			String msg) {
-		User sender;
-		User taker;
+	public ModelMessages addUserMessage(UserId idByUser, UserId idToUser,
+			String msg)
+	{
+		/** TODO zrobiæ ¿eby wiadomosci byly obrabiane dopiero u klienta ! */
+		if(ifUserIsBlocked(idByUser))
+			return new InfoMessage("Najpierw sie zaloguj!");
+		User byUser;
+		User toUser;
 
-		try {
-			sender = getUser(idSender);
-			taker = getUser(idTaker);
+		try
+		{
+			byUser = getUser(idByUser);
+			toUser = getUser(idToUser);
 			Date date = Calendar.getInstance().getTime();
-			Message message = new Message(sender, taker, date, sdf.format(date)
-					+ " " + sender.getUserName() + "\n" + msg + "\n");
-			sender.addMessage(taker, message);
-			taker.addMessage(sender, message);
-		} catch (UserNotFoundException e) {
+			Message message = new Message(byUser, toUser, date, sdf.format(date)
+					+ " " + byUser.getUserName() + "\n" + msg + "\n");
+			byUser.addMessage(toUser, message);
+			toUser.addMessage(byUser, message);
+		} catch (UserNotFoundException e)
+		{
 			return new InfoMessage("Nie ma uzytkownikow o takich numerach ID");
 		}
 
-		return this.sendMessageHistory(sender, taker);
+		return this.sendMessageHistory(byUser, toUser);
 	}
 
 	/**
 	 * Prywatna klasa do wysy³ania wiadomoœci
 	 */
-	private ModelMessages sendMessageHistory(User sender, User taker) {
+	private ModelMessages sendMessageHistory(User byUser, User toUser)
+	{
 		String msg;
-		try {
-			msg = this.getMessageHistory(sender, taker);
-		} catch (MessagesNotFoundException e) {
+		try
+		{
+			msg = getMessageHistory(byUser, toUser);
+		} catch (MessagesNotFoundException e)
+		{
 			return new InfoMessage("Brak wiadomoœci do wyœwietlenia");
 		}
 		return new DataMessage(msg);
@@ -125,20 +166,22 @@ public class Model {
 	/**
 	 * Prywatna metoda tworz¹ca rozmowê miêdzy dwoma u¿ytkownikami po ich ID
 	 * 
-	 * @param int idSender, int idTaker
 	 */
-	private String getMessageHistory(User sender, User taker)
-			throws MessagesNotFoundException {
+	private String getMessageHistory(User byUser, User toUser)
+			throws MessagesNotFoundException
+	{
 		HashSet<Message> conversation = new HashSet<Message>();
 		String finishConversation = new String("");
 
-		conversation.addAll(sender.getMessageHistory(taker));
-		if (!conversation.isEmpty()) {
+		conversation.addAll(byUser.getMessageHistory(toUser));
+		if (!conversation.isEmpty())
+		{
 			ArrayList<Message> listOfMessages = new ArrayList<Message>();
 			listOfMessages.addAll(conversation);
 			Collections.sort(listOfMessages);
 
-			for (Message msg : listOfMessages) {
+			for (Message msg : listOfMessages)
+			{
 				finishConversation = finishConversation + msg.getMessage();
 			}
 		}
@@ -154,19 +197,24 @@ public class Model {
 	/**
 	 * Metoda dodaj¹ca osobê do znajomych danego klienta
 	 * 
-	 * @param int idSender, int idTaker
+	 * @param int idByUser, int idToUser
 	 */
-	public ModelMessages addUserContact(UserId idSender, UserId idTaker) {
-		User sender;
-		User taker;
-		try {
-			sender = getUser(idSender);
-			taker = getUser(idTaker);
-			sender.addContact(taker);
-		} catch (UserNotFoundException e) {
+	public ModelMessages addUserContact(UserId idByUser, UserId idWhichUser)
+	{
+		if(ifUserIsBlocked(idByUser))
+			return new InfoMessage("Najpierw sie zaloguj!");
+		User byUser;
+		User toUser;
+		try
+		{
+			byUser = getUser(idByUser);
+			toUser = getUser(idWhichUser);
+			byUser.addContact(toUser);
+		} catch (UserNotFoundException e)
+		{
 			return new InfoMessage("Nie ma uzytkownika o takim numerze ID");
 		}
-		return this.getUsersContacts(idSender);
+		return this.getUsersContacts(idByUser);
 	}
 
 	/**
@@ -174,39 +222,50 @@ public class Model {
 	 * 
 	 * @param int id
 	 */
-	public ModelMessages getUsersContacts(UserId id) {
+	private ModelMessages getUsersContacts(UserId userId)
+	{
+		
 		User user;
-		try {
-			user = getUser(id);
-		} catch (UserNotFoundException e) {
-			return new InfoMessage("Nie ma uzytkownikow o takich numerach ID");
+		try
+		{
+			user = getUser(userId);
+		} catch (UserNotFoundException e)
+		{
+			return new InfoMessage("Nie ma uzytkownika o takim numerze ID");
 		}
 		return new DataMessage(this.getContacts(user));
-	}
-
-	/**
-	 * Metoda wysy³aj¹ca wszystkich u¿ytkowników danego chatu
-	 */
-	public ModelMessages getAllUsers() {
-		return new DataMessage(this.getAllUsersSet());
 	}
 
 	/**
 	 * Metoda prywatna pomagaj¹ca przy zwracaniu informacji o kontaktach
 	 * u¿ytkownika
 	 */
-	private HashSet<UsersDataForClient> getContacts(User user) {
+	private HashSet<UsersDataForClient> getContacts(User user)
+	{
 		HashSet<UsersDataForClient> contactsSet = new HashSet<UsersDataForClient>();
-		for (User contact : user.getContacts()) {
+		for (User contact : user.getContacts())
+		{
+			/** TODO */
+			System.out.println(contact.getUserName());
 			contactsSet.add(new UsersDataForClient(contact.getUserId(), contact
 					.getUserName()));
 		}
 		return contactsSet;
 	}
 
-	private HashSet<UsersDataForClient> getAllUsersSet() {
+	/**
+	 * Metoda zwracaj¹ca HashSet wszystkich klientów zalogowanych na serwerze
+	 * 
+	 * @return
+	 */
+	public HashSet<UsersDataForClient> getAllUsersSet()
+	{
+		
 		HashSet<UsersDataForClient> allUsersSet = new HashSet<UsersDataForClient>();
-		for (User contact : usersSet) {
+		for (User contact : usersSet)
+		{
+			/** TODO */
+			System.out.println(contact.getUserName()+ contact.getUserId().getId());
 			allUsersSet.add(new UsersDataForClient(contact.getUserId(), contact
 					.getUserName()));
 		}
@@ -222,9 +281,12 @@ public class Model {
 	/**
 	 * Klasa zwracaj¹ca obiekt klienta okreœlonego po jego ID
 	 */
-	private User getUser(UserId id) throws UserNotFoundException {
-		for (User user : usersSet) {
-			if (id.equals(user.getUserId())) {
+	private User getUser(UserId userId) throws UserNotFoundException
+	{
+		for (User user : usersSet)
+		{
+			if (userId.equals(user.getUserId()))
+			{
 				return user;
 			}
 		}
@@ -232,7 +294,7 @@ public class Model {
 	}
 
 	/*
-	 * public void deleteHistory(int idSender, int idTaker){
-	 * usersMap.get(idSender).removeHistory(idTaker); }
+	 * public void deleteHistory(int idByUser, int idToUser){
+	 * usersMap.get(idByUser).removeHistory(idToUser); }
 	 */
 }

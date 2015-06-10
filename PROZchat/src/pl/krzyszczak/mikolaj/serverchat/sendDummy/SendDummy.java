@@ -2,7 +2,8 @@ package pl.krzyszczak.mikolaj.serverchat.sendDummy;
 
 import java.io.Serializable;
 
-public abstract class SendDummy implements Serializable {
+public abstract class SendDummy implements Serializable
+{
 
 	/**
 	 * 

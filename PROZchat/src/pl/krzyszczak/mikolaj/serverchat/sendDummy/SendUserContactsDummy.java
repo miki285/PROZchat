@@ -11,7 +11,8 @@ import pl.krzyszczak.mikolaj.serverchat.helpfull.UsersDataForClient;
  * @author Miko³aj
  *
  */
-public class SendUserContactsDummy extends SendDummy implements Serializable {
+public class SendUserContactsDummy extends SendDummy implements Serializable
+{
 
 	/**
 	 * 
@@ -27,7 +28,8 @@ public class SendUserContactsDummy extends SendDummy implements Serializable {
 	 * Konstruktor tworz¹cy makietê
 	 */
 	public SendUserContactsDummy(HashSet<UsersDataForClient> usersFriends,
-			HashSet<UsersDataForClient> allUsers) {
+			HashSet<UsersDataForClient> allUsers)
+	{
 		this.usersFriends = usersFriends;
 		this.allUsers = allUsers;
 	}
@@ -38,7 +40,8 @@ public class SendUserContactsDummy extends SendDummy implements Serializable {
 	 * @return
 	 */
 
-	public HashSet<UsersDataForClient> getUsersContacts() {
+	public HashSet<UsersDataForClient> getUsersContacts()
+	{
 		return this.usersFriends;
 	}
 
@@ -47,7 +50,8 @@ public class SendUserContactsDummy extends SendDummy implements Serializable {
 	 * 
 	 * @return
 	 */
-	public HashSet<UsersDataForClient> getAllUsers() {
+	public HashSet<UsersDataForClient> getAllUsers()
+	{
 		return this.allUsers;
 	}
 

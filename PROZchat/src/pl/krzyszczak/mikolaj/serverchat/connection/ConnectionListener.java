@@ -15,7 +15,8 @@ import pl.krzyszczak.mikolaj.serverchat.helpfull.UserId;
  * 
  * @autor Krzyszczak Miko³aj
  */
-public class ConnectionListener extends Thread {
+public class ConnectionListener extends Thread
+{
 
 	/** Server socket */
 	private final ServerSocket serverSocket;
@@ -32,7 +33,8 @@ public class ConnectionListener extends Thread {
 	 */
 	public ConnectionListener(final ServerSocket serverSocket,
 			BlockingQueue<ApplicationEvent> eventQueue,
-			HashMap<UserId, ObjectOutputStream> userOutputStreamMap) {
+			HashMap<UserId, ObjectOutputStream> userOutputStreamMap)
+	{
 		this.serverSocket = serverSocket;
 		this.eventQueue = eventQueue;
 		this.userOutputStreamsMap = userOutputStreamMap;
@@ -42,14 +44,18 @@ public class ConnectionListener extends Thread {
 	 * Metoda klasy connectionListener która nas³uchuje po³¹czeñ od nowych
 	 * klientów
 	 */
-	public void run() {
-		while (true) {
-			try {
+	public void run()
+	{
+		while (true)
+		{
+			try
+			{
 				Socket usrSocket = serverSocket.accept();
 				ClientThread clientThread = new ClientThread(usrSocket,
 						userOutputStreamsMap, eventQueue);
 				clientThread.start();
-			} catch (IOException e) {
+			} catch (IOException e)
+			{
 				System.err.println(e);
 			}
 		}

@@ -9,24 +9,24 @@ public class MessageAppEvent extends ApplicationEvent implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final UserId byUser;
-	private final UserId toUser;
+	private final UserId byUserId;
+	private final UserId toUserId;
 	private final String msg;
 	
-	public MessageAppEvent(final UserId byUser, final UserId toUser, final String msg){
-		this.byUser=byUser;
-		this.toUser=toUser;
+	public MessageAppEvent(final UserId byUserId, final UserId toUserId, final String msg){
+		this.byUserId=byUserId;
+		this.toUserId=toUserId;
 		this.msg=msg;
 	}
 	
 	public UserId getByUser()
 	{
-		return this.byUser;
+		return this.byUserId;
 	}
 	
 	public UserId getToUser()
 	{
-		return this.toUser;
+		return this.toUserId;
 	}
 	
 	public String getMsg()

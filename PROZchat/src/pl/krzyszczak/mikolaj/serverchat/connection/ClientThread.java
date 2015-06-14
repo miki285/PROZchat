@@ -77,8 +77,8 @@ public class ClientThread extends Thread
 				if (listenedEvent instanceof LoginAppClientEvent)
 				{
 					LoginAppClientEvent loginListenedEvent = (LoginAppClientEvent) listenedEvent;
-					userOutputStreamsMap.put(loginListenedEvent.getId(),
-							outStream);
+					LoginAppServerEvent loginAppServerEvent= new LoginAppServerEvent(loginListenedEvent, outStream);
+					eventQueue.add(loginAppServerEvent);
 				} else if (listenedEvent instanceof CreateAccountAppClientEvent)
 				{
 					CreateAccountAppClientEvent accountAppClientEvent = (CreateAccountAppClientEvent) listenedEvent;

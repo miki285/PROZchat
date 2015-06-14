@@ -1,13 +1,13 @@
 package pl.krzyszczak.mikolaj.serverchat.model;
 
-import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
-import pl.krzyszczak.mikolaj.serverchat.exceptions.MessagesNotFoundException;
+import pl.krzyszczak.mikolaj.serverchat.appEvent.MessageAppEvent;
 import pl.krzyszczak.mikolaj.serverchat.exceptions.UserNotFoundException;
 import pl.krzyszczak.mikolaj.serverchat.helpfull.UserId;
 import pl.krzyszczak.mikolaj.serverchat.helpfull.UserPassword;
@@ -29,8 +29,7 @@ public class Model
 	private HashSet<User> usersSet;
 	/** Zmienna pomagaj¹ca nadawaæ unikalne ID u¿ytkownikom*/
 	private int uniqueId;
-	/** Zmienna do ustawiania formatu wyswietlania daty */
-	private SimpleDateFormat sdf;
+	
 	/**
 	 * Set przechowuj¹cy UserId u¿ytkowników, którzy próbowali siê zalogowaæ ale
 	 * podali z³e has³o
@@ -44,12 +43,13 @@ public class Model
 
 	/**
 	 * Konstruktor modelu
+	 * TODO poprawiæ to sdf
 	 */
 	public Model()
 	{
 		uniqueId=1;
 		usersSet = new HashSet<User>();
-		sdf = new SimpleDateFormat("HH:mm:ss");
+		//sdf = new SimpleDateFormat("HH:mm:ss");
 		blockedUsers = new HashSet<UserId>();
 
 	}
@@ -119,24 +119,25 @@ public class Model
 	/**
 	 * Metoda dodaj¹ca wiadomoœæ do ka¿dego z u¿ytkowników danej konwersacji
 	 * 
-	 * @param int idByUser, int idToUser, String msg
+	 * @param int byUserId, int toUserId, String msg
 	 */
-	public ModelMessages addUserMessage(UserId idByUser, UserId idToUser,
-			String msg)
+	public ModelMessages addUserMessage(MessageAppEvent messageAppEvent)
 	{
-		/** TODO zrobiæ ¿eby wiadomosci byly obrabiane dopiero u klienta ! */
-		if(ifUserIsBlocked(idByUser))
+	
+		UserId byUserId=messageAppEvent.getByUser();
+		UserId toUserId= messageAppEvent.getToUser();
+		String msg= messageAppEvent.getMsg();
+		if(ifUserIsBlocked(byUserId))
 			return new InfoMessage("Najpierw sie zaloguj!");
 		User byUser;
 		User toUser;
 
 		try
 		{
-			byUser = getUser(idByUser);
-			toUser = getUser(idToUser);
+			byUser = getUser(byUserId);
+			toUser = getUser(toUserId);
 			Date date = Calendar.getInstance().getTime();
-			Message message = new Message(byUser, toUser, date, sdf.format(date)
-					+ " " + byUser.getUserName() + "\n" + msg + "\n");
+			Message message = new Message(byUserId, toUserId, date, msg + "\n");
 			byUser.addMessage(toUser, message);
 			toUser.addMessage(byUser, message);
 		} catch (UserNotFoundException e)
@@ -144,34 +145,17 @@ public class Model
 			return new InfoMessage("Nie ma uzytkownikow o takich numerach ID");
 		}
 
-		return this.sendMessageHistory(byUser, toUser);
+		return this.getMessageHistory(byUser, toUser);
 	}
 
-	/**
-	 * Prywatna klasa do wysy³ania wiadomoœci
-	 */
-	private ModelMessages sendMessageHistory(User byUser, User toUser)
-	{
-		String msg;
-		try
-		{
-			msg = getMessageHistory(byUser, toUser);
-		} catch (MessagesNotFoundException e)
-		{
-			return new InfoMessage("Brak wiadomoœci do wyœwietlenia");
-		}
-		return new DataMessage(msg);
-	}
+
 
 	/**
 	 * Prywatna metoda tworz¹ca rozmowê miêdzy dwoma u¿ytkownikami po ich ID
-	 * 
 	 */
-	private String getMessageHistory(User byUser, User toUser)
-			throws MessagesNotFoundException
+	private ModelMessages getMessageHistory(User byUser, User toUser)
 	{
 		HashSet<Message> conversation = new HashSet<Message>();
-		String finishConversation = new String("");
 
 		conversation.addAll(byUser.getMessageHistory(toUser));
 		if (!conversation.isEmpty())
@@ -180,12 +164,10 @@ public class Model
 			listOfMessages.addAll(conversation);
 			Collections.sort(listOfMessages);
 
-			for (Message msg : listOfMessages)
-			{
-				finishConversation = finishConversation + msg.getMessage();
-			}
+			return  new DataMessage(listOfMessages);
 		}
-		throw new MessagesNotFoundException();
+		return new InfoMessage("Brak wiadomoœci do wyœwietlenia");
+		
 	}
 
 	/***********************************************************************************************************************/
@@ -197,24 +179,24 @@ public class Model
 	/**
 	 * Metoda dodaj¹ca osobê do znajomych danego klienta
 	 * 
-	 * @param int idByUser, int idToUser
+	 * @param int byUserId, int toUserId
 	 */
-	public ModelMessages addUserContact(UserId idByUser, UserId idWhichUser)
+	public ModelMessages addUserContact(UserId byUserId, UserId idWhichUser)
 	{
-		if(ifUserIsBlocked(idByUser))
+		if(ifUserIsBlocked(byUserId))
 			return new InfoMessage("Najpierw sie zaloguj!");
 		User byUser;
 		User toUser;
 		try
 		{
-			byUser = getUser(idByUser);
+			byUser = getUser(byUserId);
 			toUser = getUser(idWhichUser);
 			byUser.addContact(toUser);
 		} catch (UserNotFoundException e)
 		{
 			return new InfoMessage("Nie ma uzytkownika o takim numerze ID");
 		}
-		return this.getUsersContacts(idByUser);
+		return this.getUsersContacts(byUserId);
 	}
 
 	/**
@@ -245,8 +227,6 @@ public class Model
 		HashSet<UsersDataForClient> contactsSet = new HashSet<UsersDataForClient>();
 		for (User contact : user.getContacts())
 		{
-			/** TODO */
-			System.out.println(contact.getUserName());
 			contactsSet.add(new UsersDataForClient(contact.getUserId(), contact
 					.getUserName()));
 		}
@@ -264,8 +244,6 @@ public class Model
 		HashSet<UsersDataForClient> allUsersSet = new HashSet<UsersDataForClient>();
 		for (User contact : usersSet)
 		{
-			/** TODO */
-			System.out.println(contact.getUserName()+ contact.getUserId().getId());
 			allUsersSet.add(new UsersDataForClient(contact.getUserId(), contact
 					.getUserName()));
 		}
@@ -279,7 +257,7 @@ public class Model
 
 	/***********************************************************************************************************************/
 	/**
-	 * Klasa zwracaj¹ca obiekt klienta okreœlonego po jego ID
+	 * metoda zwracaj¹ca obiekt klienta okreœlonego po jego ID
 	 */
 	private User getUser(UserId userId) throws UserNotFoundException
 	{
@@ -293,8 +271,19 @@ public class Model
 		throw new UserNotFoundException();
 	}
 
-	/*
-	 * public void deleteHistory(int idByUser, int idToUser){
-	 * usersMap.get(idByUser).removeHistory(idToUser); }
-	 */
+	/**Metoda zwracaj¹ca obiektu UserId*/
+	public UserId getUserId(UserId userId)
+	{
+		UserId getUserId = null;
+		try
+		{
+			getUserId= getUser(userId).getUserId();
+		} catch (UserNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return getUserId;
+	}
+
 }

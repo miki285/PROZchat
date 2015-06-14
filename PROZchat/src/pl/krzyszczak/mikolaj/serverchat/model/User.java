@@ -64,8 +64,7 @@ public class User
 	/**
 	 * Metoda dodaj¹ca u¿ytkwonika do znajomych klienta
 	 * 
-	 * @param User
-	 *            user
+	 * @param User user
 	 */
 	public void addContact(User user)
 	{
@@ -94,8 +93,7 @@ public class User
 	/**
 	 * Metoda dodaj¹ca wiadomoœæ do historii danego u¿ytkownika
 	 * 
-	 * @param User
-	 *            user,Message message
+	 * @param User user,Message message
 	 */
 	public void addMessage(User user, Message message)
 	{

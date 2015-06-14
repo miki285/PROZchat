@@ -3,12 +3,9 @@ package pl.krzyszczak.mikolaj.serverchat.connection;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
-import java.net.SocketException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import pl.krzyszczak.mikolaj.serverchat.appEvent.ApplicationEvent;
@@ -103,9 +100,12 @@ public class MainServerClass
 
 		try
 		{
-			ObjectOutputStream objectOutputStream = userOutputStreamsMap
-					.get(userId);
-			objectOutputStream.writeObject(dummy);
+			
+			
+			ObjectOutputStream objectOutputStream = userOutputStreamsMap.get(userId);
+			if (objectOutputStream!=null)
+				objectOutputStream.writeObject(dummy);
+		
 		} catch (IOException e)
 		{
 			e.printStackTrace();
@@ -146,6 +146,14 @@ public class MainServerClass
 			ObjectOutputStream objectOutputStream)
 	{
 		userOutputStreamsMap.put(userId, objectOutputStream);
+	}
+	
+	/**
+	 * Metoda s³u¿¹ca do kasowania nowopowsta³uch kont do hashsetu outputStreamów
+	 */
+	public void removeNewUsersStreams(UserId userId)
+	{
+		userOutputStreamsMap.remove(userId);
 	}
 
 	/**

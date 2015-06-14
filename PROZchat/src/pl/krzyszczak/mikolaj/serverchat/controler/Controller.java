@@ -1,6 +1,7 @@
 package pl.krzyszczak.mikolaj.serverchat.controler;
 
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,11 +12,13 @@ import pl.krzyszczak.mikolaj.serverchat.connection.MainServerClass;
 import pl.krzyszczak.mikolaj.serverchat.helpfull.UserId;
 import pl.krzyszczak.mikolaj.serverchat.helpfull.UserPassword;
 import pl.krzyszczak.mikolaj.serverchat.helpfull.UsersDataForClient;
+import pl.krzyszczak.mikolaj.serverchat.model.Message;
 import pl.krzyszczak.mikolaj.serverchat.model.Model;
 import pl.krzyszczak.mikolaj.serverchat.modelMessages.DataMessage;
 import pl.krzyszczak.mikolaj.serverchat.modelMessages.InfoMessage;
 import pl.krzyszczak.mikolaj.serverchat.modelMessages.ModelMessages;
 import pl.krzyszczak.mikolaj.serverchat.sendDummy.SendErrorDummy;
+import pl.krzyszczak.mikolaj.serverchat.sendDummy.SendMessageDummy;
 import pl.krzyszczak.mikolaj.serverchat.sendDummy.SendUserContactsDummy;
 
 /**
@@ -51,11 +54,9 @@ public class Controller
 		strategyMap = new HashMap<Class<? extends ApplicationEvent>, Controller.ApplicationEventStrategy>();
 		strategyMap.put(AddFriendAppEvent.class,
 				new ButtonAddFriendUserClickedEventStrategy());
-		strategyMap.put(ClearHistoryAppEvent.class,
-				new ButtonClearHistoryClickedEventStrategy());
 		strategyMap.put(CreateAccountAppServerEvent.class,
 				new ButtonCreateAccountClickedEventStrategy());
-		strategyMap.put(LoginAppClientEvent.class,
+		strategyMap.put(LoginAppServerEvent.class,
 				new ButtonLoginClickedEventStrategy());
 		strategyMap.put(MessageAppEvent.class,
 				new ButtonSendMessageEventStrategy());
@@ -125,23 +126,12 @@ public class Controller
 			} else if (message instanceof DataMessage)
 			{
 				server.sendDummy(
-						byUserId,
+						model.getUserId(byUserId),
 						new SendUserContactsDummy(
 								(HashSet<UsersDataForClient>) ((DataMessage) message)
-										.getData(), model.getAllUsersSet()));
+										.getData(), model.getAllUsersSet(),
+								byUserId));
 			}
-
-		}
-	}
-
-	class ButtonClearHistoryClickedEventStrategy extends
-			ApplicationEventStrategy
-	{
-
-		@Override
-		void execute(ApplicationEvent applicationEvent)
-		{
-			// TODO Auto-generated method stub
 
 		}
 	}
@@ -156,11 +146,7 @@ public class Controller
 			ApplicationEventStrategy
 	{
 		/*
-		 * (non-Javadoc)
 		 * 
-		 * @see pl.krzyszczak.mikolaj.serverchat.controler.Controller.
-		 * ApplicationEventStrategy
-		 * #execute(pl.krzyszczak.mikolaj.serverchat.appEvent.ApplicationEvent)
 		 */
 		@Override
 		void execute(ApplicationEvent applicationEvent)
@@ -171,15 +157,15 @@ public class Controller
 					.getPassword();
 			ObjectOutputStream outputStream = ((CreateAccountAppServerEvent) applicationEvent)
 					.getObjectOutputStream();
-			
-			/** TODO*/
+
+			/** TODO */
 			System.out.println(outputStream.hashCode());
-			
+
 			UserId userId = model.setUniqueId();
 			model.addUser(userId, userName, userPassword);
 			server.addNewUsersStreams(userId, outputStream);
-			SendUserContactsDummy sendUserContactsDummy= new SendUserContactsDummy(model.getAllUsersSet(), model
-					.getAllUsersSet());
+			SendUserContactsDummy sendUserContactsDummy = new SendUserContactsDummy(
+					model.getAllUsersSet(), model.getAllUsersSet(), userId);
 			server.sendToAllDummy(sendUserContactsDummy);
 
 		}
@@ -199,23 +185,29 @@ public class Controller
 		@Override
 		void execute(ApplicationEvent applicationEvent)
 		{
-			UserId userId = ((LoginAppClientEvent) applicationEvent).getId();
-			UserPassword password = ((LoginAppClientEvent) applicationEvent)
+			UserId userId = ((LoginAppServerEvent) applicationEvent).getId();
+			UserPassword password = ((LoginAppServerEvent) applicationEvent)
 					.getPassword();
-
+			ObjectOutputStream objectOutputStream= ((LoginAppServerEvent) applicationEvent).getObjectOutputStream();
 			ModelMessages message = model.checkUserPassword(userId, password);
 
+			
 			if (message instanceof InfoMessage)
 			{
+				server.addNewUsersStreams(userId, objectOutputStream);
 				server.sendDummy(userId, new SendErrorDummy(
 						((InfoMessage) message).getInfoMessage()));
+				server.removeNewUsersStreams(userId);
 			} else
 			{
+				UserId byUserId=model.getUserId(userId);
+				server.addNewUsersStreams(byUserId, objectOutputStream);
 				server.sendDummy(
-						userId,
+						byUserId,
 						new SendUserContactsDummy(
 								(HashSet<UsersDataForClient>) ((DataMessage) message)
-										.getData(), model.getAllUsersSet()));
+										.getData(), model.getAllUsersSet(),
+								userId));
 			}
 		}
 
@@ -230,10 +222,28 @@ public class Controller
 	class ButtonSendMessageEventStrategy extends ApplicationEventStrategy
 	{
 
+		@SuppressWarnings("unchecked")
 		@Override
 		void execute(ApplicationEvent applicationEvent)
 		{
-			// TODO Auto-generated method stub
+			ModelMessages message = model
+					.addUserMessage((MessageAppEvent) applicationEvent);
+			UserId byUserId = ((MessageAppEvent) applicationEvent).getByUser();
+			UserId toUserId = ((MessageAppEvent) applicationEvent).getByUser();
+			if (message instanceof InfoMessage)
+			{
+				server.sendDummy(byUserId, new SendErrorDummy(
+						((InfoMessage) message).getInfoMessage()));
+			} else
+			{
+				SendMessageDummy messageDummy = new SendMessageDummy(
+						(ArrayList<Message>) ((DataMessage) message).getData());
+				messageDummy.setToUserId(byUserId);
+				server.sendDummy(toUserId, messageDummy);
+				messageDummy.setToUserId(toUserId);
+				server.sendDummy(byUserId, messageDummy);
+
+			}
 
 		}
 	}

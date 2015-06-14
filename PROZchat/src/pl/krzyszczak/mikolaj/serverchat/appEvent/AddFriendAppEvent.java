@@ -10,19 +10,26 @@ public class AddFriendAppEvent extends ApplicationEvent implements Serializable 
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private UserId byUser;
-	private UserId whichUser;
+	private UserId byUserId;
+	private UserId whichUserId;
 	
-	public AddFriendAppEvent(UserId byUser, UserId whichUser){
-		this.byUser=byUser;
-		this.whichUser=whichUser;
+	public AddFriendAppEvent (UserId whichUserId){
+		this.byUserId=null;
+		this.whichUserId=whichUserId;
+	}
+	
+	/**Metoda ustawiaj¹ca byUserId*/
+	
+	public void setByUserId(UserId byUserId)
+	{
+		this.byUserId=byUserId;
 	}
 	
 	public UserId getByUser(){
-		return this.byUser;
+		return this.byUserId;
 	}
 	
 	public UserId getWhichUser(){
-		return this.whichUser;
+		return this.whichUserId;
 	}
 }

@@ -7,25 +7,24 @@ import pl.krzyszczak.mikolaj.serverchat.helpfull.UserPassword;
 
 public class LoginAppClientEvent extends ApplicationEvent implements
 		Serializable
-{
-	/**
+{/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private UserId id;
+	private UserId userId;
 
 	private UserPassword password;
 
-	public LoginAppClientEvent(UserId id, UserPassword password)
+	public LoginAppClientEvent(UserId userId, UserPassword password)
 	{
-		this.id = id;
+		this.userId = userId;
 		this.password = password;
 	}
 
-	public UserId getId()
+	public UserId getUserId()
 	{
-		return this.id;
+		return this.userId;
 	}
 
 	public UserPassword getPassword()

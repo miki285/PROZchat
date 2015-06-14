@@ -2,21 +2,9 @@ package pl.krzyszczak.mikolaj.serverchat.serverchat;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-
-
-
-
-
-
-
-
-
-
 import pl.krzyszczak.mikolaj.serverchat.appEvent.ApplicationEvent;
 import pl.krzyszczak.mikolaj.serverchat.connection.MainServerClass;
 import pl.krzyszczak.mikolaj.serverchat.controler.Controller;
-import pl.krzyszczak.mikolaj.serverchat.helpfull.UserId;
 import pl.krzyszczak.mikolaj.serverchat.model.Model;
 
 public class SerwerChat {

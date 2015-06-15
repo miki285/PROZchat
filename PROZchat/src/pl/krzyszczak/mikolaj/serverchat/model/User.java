@@ -69,7 +69,7 @@ public class User
 	public void addContact(User user)
 	{
 		contacts.add(user);
-		chatHistory.put(user, new HashSet<Message>());
+		//chatHistory.put(user, new HashSet<Message>());
 	}
 
 	/**
@@ -97,12 +97,12 @@ public class User
 	 */
 	public void addMessage(User user, Message message)
 	{
+		if(!chatHistory.containsKey(user))
+		{
+			chatHistory.put(user, new HashSet<Message>());
+		}
 		chatHistory.get(user).add(message);
 	}
 
-	public void removeHistory(User user)
-	{
-		chatHistory.get(user).clear();
-	}
 
 }

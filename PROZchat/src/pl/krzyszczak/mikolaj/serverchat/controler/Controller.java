@@ -165,7 +165,7 @@ public class Controller
 			model.addUser(userId, userName, userPassword);
 			server.addNewUsersStreams(userId, outputStream);
 			SendUserContactsDummy sendUserContactsDummy = new SendUserContactsDummy(
-					model.getAllUsersSet(), model.getAllUsersSet(), userId);
+					new HashSet<UsersDataForClient>(), model.getAllUsersSet(), userId);
 			server.sendToAllDummy(sendUserContactsDummy);
 
 		}
@@ -229,7 +229,7 @@ public class Controller
 			ModelMessages message = model
 					.addUserMessage((MessageAppEvent) applicationEvent);
 			UserId byUserId = ((MessageAppEvent) applicationEvent).getByUser();
-			UserId toUserId = ((MessageAppEvent) applicationEvent).getByUser();
+			UserId toUserId = ((MessageAppEvent) applicationEvent).getToUser();
 			if (message instanceof InfoMessage)
 			{
 				server.sendDummy(byUserId, new SendErrorDummy(
@@ -239,9 +239,9 @@ public class Controller
 				SendMessageDummy messageDummy = new SendMessageDummy(
 						(ArrayList<Message>) ((DataMessage) message).getData());
 				messageDummy.setToUserId(byUserId);
-				server.sendDummy(toUserId, messageDummy);
+				server.sendDummy(model.getUserId(toUserId), messageDummy);
 				messageDummy.setToUserId(toUserId);
-				server.sendDummy(byUserId, messageDummy);
+				server.sendDummy(model.getUserId(byUserId), messageDummy);
 
 			}
 
